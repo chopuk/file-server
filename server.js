@@ -17,7 +17,18 @@ dotenv.config()
 global.appRoot = path.resolve(__dirname)
 
 const app = express()
-app.use(cors())
+//app.use(cors())
+app.use((req, res, next) => {
+
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  if ( req.method === 'OPTIONS') {
+      return res.sendStatus(200)
+  }
+  next()
+
+})
 
 app.use(express.json({ limit: '15MB' }))
 app.use(express.urlencoded({ extended: true }))
@@ -54,7 +65,7 @@ app.post('/uploadimage', upload.single('instaImage'), (req,res) => {
 
 // send email with attached csv data ( used by blood pressure buddy )
 app.post('/sendcsv', (req,res) => {
-  // write the cvs file...
+  // write the csv file...
   fs.writeFile('./public/csvfiles/' + 'export.csv', req.body.csvData, 'utf8', (err) => {
 		if (err) throw err
       // Send confirmation email
