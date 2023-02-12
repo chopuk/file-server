@@ -1,0 +1,29 @@
+<b>Your requested blood pressure readings:</b>
+<br>
+<br>
+<div class="large-6 columns">
+    <table bgcolor="#b3d9ff" style="border: 1px solid black;">
+        <thead>
+            <tr style="border: 1px solid black;">
+                <th width="200">Date</th>
+                <th width="200">Systolic</th>
+                <th width="200">Diastolic</th>
+                <th width="200">Pulse</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr style="border: 1px solid black;">
+                    <td align="center" style="border: 1px solid black;">{{item.date}}</td>
+                    <td align="center" style="border: 1px solid black;">{{item.systolic}}</td>
+                    <td align="center" style="border: 1px solid black;">{{item.diastolic}}</td>
+                    <td align="center" style="border: 1px solid black;">{{item.pulse}}</td>                          
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br><br>
+    <b>Thanks for using Blood Pressure Buddy.</b>
+    <br><br>
+    <b>Regards - Chris </b>
+</div>
