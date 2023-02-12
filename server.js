@@ -111,7 +111,7 @@ app.post('/sendcsv', (req,res) => {
       })
 
   })
-  res.json({message: 'Email sent successfully"'})
+  res.json({message: 'Email sent successfully'})
 })
 
 //start server...
