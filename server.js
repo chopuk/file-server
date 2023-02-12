@@ -54,64 +54,62 @@ app.post('/uploadimage', upload.single('instaImage'), (req,res) => {
 
 // send email with attached csv data ( used by blood pressure buddy )
 app.post('/sendcsv', (req,res) => {
-  // Send confirmation email
-
-  // for(var i = 1; i < req.body.csvData.length; i++) {
-  //   readings.push(req.body.csvData[i])
-  //   readings[i-1].date = moment(req.body.csvData[i].readingdate).format('Do MMMM YYYY')
-  // }
-
-  let readings = []
-  readings = req.body.readings
-  readings.forEach(reading => {
-    reading.date = moment(reading.readingDate).format('Do MMMM YYYY')
-  })
-
-  // initialise smtp
-  var smtpTransport = nodemailer.createTransport({
-      host: "smtp.mailgun.org",
-      auth: {
-          user: process.env.MAILGUN_USER,
-          pass: process.env.MAILGUN_PASSWORD
-      }
-  })
-
-  var templates = new EmailTemplates({root: path.join(global.appRoot,'emailTemplates')})
-  var context = {
-                  items: readings
-  }
-
-  templates.render('emailCSV.html', context, function(err, html, text) {
-
-      const customerName = req.body.customerName
-      const email = req.body.email
-  
-      // setup email data
-      var mailOptions = {
-          from: "Blood Pressure Buddy<bpb@bpd.com>", 
-          to: customerName + " " + "<" + email + ">", 
-          subject: "Requested Results", 
-          html: html,
-          attachments: [
-            {   
-                filename: 'fred.jpg',
-                path: 'public/mugshots/a01.jpg'
-            }
-          ]
-      }
-
-      // send email
-      smtpTransport.sendMail(mailOptions, function(error, info){
-          if(error){
-              console.log(error)
-          }else{
-              console.log("Message sent: " + info.messageId);
-          }  
-          smtpTransport.close()
+  // write the cvs file...
+  fs.writeFile('./public/csvfiles/' + 'export.csv', req.body.csvData, 'utf8', (err) => {
+		if (err) throw err
+      // Send confirmation email
+      let readings = []
+      readings = req.body.readings
+      readings.forEach(reading => {
+        reading.date = moment(reading.readingDate).format('Do MMMM YYYY')
       })
 
-  })
-  res.json({message: 'Email sent successfully'})
+      // initialise smtp
+      var smtpTransport = nodemailer.createTransport({
+          host: "smtp.mailgun.org",
+          auth: {
+              user: process.env.MAILGUN_USER,
+              pass: process.env.MAILGUN_PASSWORD
+          }
+      })
+
+      var templates = new EmailTemplates({root: path.join(global.appRoot,'emailTemplates')})
+      var context = {
+                      items: readings
+      }
+
+      templates.render('emailCSV.html', context, function(err, html, text) {
+
+          const customerName = req.body.customerName
+          const email = req.body.email
+      
+          // setup email data
+          var mailOptions = {
+              from: "Blood Pressure Buddy<bpb@bpd.com>", 
+              to: customerName + " " + "<" + email + ">", 
+              subject: "Requested Results", 
+              html: html,
+              attachments: [
+                {   
+                    filename: 'export.csv',
+                    path: 'public/csvfiles/export.csv'
+                }
+              ]
+          }
+
+          // send email
+          smtpTransport.sendMail(mailOptions, function(error, info){
+              if(error){
+                  console.log(error)
+              }else{
+                  console.log("Message sent: " + info.messageId);
+              }  
+              smtpTransport.close()
+          })
+
+      })
+      res.json({message: 'Email sent successfully'})
+    })
 })
 
 //start server...
